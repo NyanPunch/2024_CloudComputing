@@ -53,7 +53,7 @@ public class awsTest {
 		}
 		ec2 = AmazonEC2ClientBuilder.standard()
 			.withCredentials(credentialsProvider)
-			.withRegion("us-east-1")	/* check the region at AWS console */
+			.withRegion("ap-southeast-2")	/* Sydney */
 			.build();
 	}
 
@@ -68,7 +68,7 @@ public class awsTest {
 		while(true)
 		{
 			System.out.println("                                                            ");
-			System.out.println("                                                            ");
+			System.out.println("        	    2019038054 Kim KyeongMin	                ");
 			System.out.println("------------------------------------------------------------");
 			System.out.println("           Amazon AWS Control Panel using SDK               ");
 			System.out.println("------------------------------------------------------------");
@@ -146,7 +146,7 @@ public class awsTest {
 				break;
 
 			case 99: 
-				System.out.println("bye!");
+				System.out.println("bye! 2019038054 Kim KyeongMin");
 				menu.close();
 				id_string.close();
 				return;
