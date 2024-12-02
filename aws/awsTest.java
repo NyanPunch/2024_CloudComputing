@@ -2,11 +2,13 @@ package aws;
 
 /*
 * Cloud Computing
-* 
+* 2024-2 2019038054 Kim KyeongMin
+* date : 2024-12-01 - 2024-12-09
 * Dynamic Resource Management Tool
 * using AWS Java SDK Library
 * 
 */
+import java.io.BufferedReader;
 import java.util.Iterator;
 import java.util.Scanner;
 import com.amazonaws.AmazonClientException;
@@ -34,6 +36,13 @@ import com.amazonaws.services.ec2.model.DescribeImagesRequest;
 import com.amazonaws.services.ec2.model.DescribeImagesResult;
 import com.amazonaws.services.ec2.model.Image;
 import com.amazonaws.services.ec2.model.Filter;
+//import com.amazonaws.services.qldbsession.model.SendCommandRequest;
+import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
+import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
+
+import com.amazonaws.services.simplesystemsmanagement.model.SendCommandRequest;
+import com.amazonaws.services.simplesystemsmanagement.model.SendCommandResult;
+import java.util.Collections;
 
 public class awsTest {
 
@@ -147,7 +156,12 @@ public class awsTest {
 				break;
 
 			case 9:
-				System.out.println("condor status");
+				System.out.print("Enter instance id: ");
+				if(id_string.hasNext())
+					instance_id = id_string.nextLine();
+
+				if(!instance_id.trim().isEmpty())
+					condorStatus(instance_id);
 				break;
 
 			case 99: 
@@ -346,6 +360,20 @@ public class awsTest {
 					images.getImageId(), images.getName(), images.getOwnerId());
 		}
 		
+	}
+
+	public static void condorStatus(String instanceid) {
+
+		SendCommandRequest sendCommandRequest = new SendCommandRequest()
+				.withInstanceIds(instanceid)
+				.withDocumentName("AWS-RunShellScript")
+				.withParameters(Collections.singletonMap("commands", Collections.singletonList("condor_status")));
+
+		AWSSimpleSystemsManagement ssm = AWSSimpleSystemsManagementClientBuilder.defaultClient();
+		SendCommandResult sendCommandResult = ssm.sendCommand(sendCommandRequest);
+
+		System.out.println(sendCommandResult);
+
 	}
 }
 	
