@@ -76,7 +76,8 @@ public class awsTest {
 			System.out.println("  3. start instance               4. available regions      ");
 			System.out.println("  5. stop instance                6. create instance        ");
 			System.out.println("  7. reboot instance              8. list images            ");
-			System.out.println("                                 99. quit                   ");
+			System.out.println("  9. condor status                                          ");
+			System.out.println("                                  99. quit                  ");
 			System.out.println("------------------------------------------------------------");
 			
 			System.out.print("Enter an integer: ");
@@ -143,6 +144,10 @@ public class awsTest {
 
 			case 8: 
 				listImages();
+				break;
+
+			case 9:
+				System.out.println("condor status");
 				break;
 
 			case 99: 
