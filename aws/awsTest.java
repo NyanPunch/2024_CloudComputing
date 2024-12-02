@@ -36,13 +36,17 @@ import com.amazonaws.services.ec2.model.DescribeImagesRequest;
 import com.amazonaws.services.ec2.model.DescribeImagesResult;
 import com.amazonaws.services.ec2.model.Image;
 import com.amazonaws.services.ec2.model.Filter;
-//import com.amazonaws.services.qldbsession.model.SendCommandRequest;
+import com.amazonaws.services.qldbsession.model.SendCommandRequest;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
 
-import com.amazonaws.services.simplesystemsmanagement.model.SendCommandRequest;
 import com.amazonaws.services.simplesystemsmanagement.model.SendCommandResult;
 import java.util.Collections;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
+import com.amazonaws.services.ec2.model.DescribeInstancesResult;
 
 public class awsTest {
 
@@ -66,6 +70,13 @@ public class awsTest {
 			.build();
 	}
 
+	private static String getPublicDnsName(String instanceId) {
+		DescribeInstancesRequest request = new DescribeInstancesRequest()
+				.withInstanceIds(instanceId);
+		DescribeInstancesResult result = ec2.describeInstances(request);
+		return result.getReservations().get(0).getInstances().get(0).getPublicDnsName();
+	}
+
 	public static void main(String[] args) throws Exception {
 
 		init();
@@ -77,9 +88,10 @@ public class awsTest {
 		while(true)
 		{
 			System.out.println("                                                            ");
-			System.out.println("        	    2019038054 Kim KyeongMin	                ");
+			System.out.println("                                                            ");
 			System.out.println("------------------------------------------------------------");
 			System.out.println("           Amazon AWS Control Panel using SDK               ");
+			System.out.println("        	    2019038054 Kim KyeongMin	                ");
 			System.out.println("------------------------------------------------------------");
 			System.out.println("  1. list instance                2. available zones        ");
 			System.out.println("  3. start instance               4. available regions      ");
@@ -161,8 +173,12 @@ public class awsTest {
 					instance_id = id_string.nextLine();
 
 				if(!instance_id.trim().isEmpty())
-					condorStatus(instance_id);
+					SSH(instance_id);
 				break;
+
+				case 10:
+
+					break;
 
 			case 99: 
 				System.out.println("bye! 2019038054 Kim KyeongMin");
@@ -362,18 +378,29 @@ public class awsTest {
 		
 	}
 
-	public static void condorStatus(String instanceid) {
+	// condor_status command 9
+	public static void SSH(String instance_id) {
+		String username = "ec2-user";
+		String keyPath = "kkm.pem";
+		String host = getPublicDnsName(instance_id);
+		//System.out.println("host: " + host);	// for debugging
 
-		SendCommandRequest sendCommandRequest = new SendCommandRequest()
-				.withInstanceIds(instanceid)
-				.withDocumentName("AWS-RunShellScript")
-				.withParameters(Collections.singletonMap("commands", Collections.singletonList("condor_status")));
+		String command = "ssh -i " + keyPath + " " + username + "@" + host + " condor_status";
 
-		AWSSimpleSystemsManagement ssm = AWSSimpleSystemsManagementClientBuilder.defaultClient();
-		SendCommandResult sendCommandResult = ssm.sendCommand(sendCommandRequest);
+		try {
+			Process process = Runtime.getRuntime().exec(command);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			String line;
+			while ((line = reader.readLine()) != null) {
+				System.out.println(line);
+			}
 
-		System.out.println(sendCommandResult);
+			int exitCode = process.waitFor();
+			System.out.println("\nExited with error code : " + exitCode);
 
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }
 	
