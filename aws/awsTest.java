@@ -36,17 +36,11 @@ import com.amazonaws.services.ec2.model.DescribeImagesRequest;
 import com.amazonaws.services.ec2.model.DescribeImagesResult;
 import com.amazonaws.services.ec2.model.Image;
 import com.amazonaws.services.ec2.model.Filter;
-import com.amazonaws.services.qldbsession.model.SendCommandRequest;
-import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
-import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
-
-import com.amazonaws.services.simplesystemsmanagement.model.SendCommandResult;
-import java.util.Collections;
-import java.io.BufferedReader;
+// additional imports
 import java.io.InputStreamReader;
 import java.io.IOException;
-import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
-import com.amazonaws.services.ec2.model.DescribeInstancesResult;
+import com.amazonaws.services.ec2.model.CreateImageRequest;
+import com.amazonaws.services.ec2.model.CreateImageResult;
 
 public class awsTest {
 
@@ -97,7 +91,7 @@ public class awsTest {
 			System.out.println("  3. start instance               4. available regions      ");
 			System.out.println("  5. stop instance                6. create instance        ");
 			System.out.println("  7. reboot instance              8. list images            ");
-			System.out.println("  9. condor status                10.                       ");
+			System.out.println("  9. condor status                10. create slave image    ");
 			System.out.println("                                  99. quit                  ");
 			System.out.println("------------------------------------------------------------");
 			
@@ -177,7 +171,13 @@ public class awsTest {
 				break;
 
 				case 10:
-
+					System.out.print("Enter instance id: ");
+					String instanceId = id_string.nextLine();
+					System.out.print("Enter image name: ");
+					String imageName = id_string.nextLine();
+					if (!instanceId.trim().isEmpty() && !imageName.trim().isEmpty()) {
+						createSlaveImage(instanceId, imageName);
+					}
 					break;
 
 			case 99: 
@@ -393,5 +393,40 @@ public class awsTest {
 			e.printStackTrace();
 		}
 	}
+
+	// create slave image command 10
+	public static void createSlaveImage(String instanceId, String imageName) {
+		System.out.println("Creating slave image...");
+
+		CreateImageRequest request = new CreateImageRequest()
+				.withInstanceId(instanceId)
+				.withName(imageName)
+				.withDescription("Slave node image created from instance " + instanceId)
+				.withNoReboot(true);
+
+		try {
+			CreateImageResult result = ec2.createImage(request);
+			String imageId = result.getImageId();
+			System.out.println("Successfully created AMI: " + imageId);
+
+			// waiting for the AMI to become available
+			DescribeImagesRequest describeImagesRequest = new DescribeImagesRequest().withImageIds(imageId);
+			while (true) {
+				DescribeImagesResult describeImagesResult = ec2.describeImages(describeImagesRequest);
+				String state = describeImagesResult.getImages().get(0).getState();
+				if ("available".equals(state)) {
+					System.out.println("AMI is now available");
+					break;
+				}
+				System.out.println("Waiting for AMI to become available...");
+				Thread.sleep(15000); // 15 seconds
+			}
+		} catch (AmazonServiceException e) {
+			System.err.println("Error creating AMI: " + e.getErrorMessage());
+		} catch (InterruptedException e) {
+			System.err.println("Thread interrupted: " + e.getMessage());
+		}
+	}
+
 }
 	
