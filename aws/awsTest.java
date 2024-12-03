@@ -317,7 +317,8 @@ public class awsTest {
 			.withImageId(ami_id)
 			.withInstanceType(InstanceType.T2Micro)
 			.withMaxCount(1)
-			.withMinCount(1);
+			.withMinCount(1)
+			.withKeyName("kkm");
 
 		RunInstancesResult run_response = ec2.runInstances(run_request);
 
