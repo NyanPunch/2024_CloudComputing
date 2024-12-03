@@ -91,7 +91,7 @@ public class awsTest {
 			System.out.println("                                                            ");
 			System.out.println("------------------------------------------------------------");
 			System.out.println("           Amazon AWS Control Panel using SDK               ");
-			System.out.println("        	    2019038054 Kim KyeongMin	                ");
+			System.out.println("        	     2019038054 Kim KyeongMin	                ");
 			System.out.println("------------------------------------------------------------");
 			System.out.println("  1. list instance                2. available zones        ");
 			System.out.println("  3. start instance               4. available regions      ");
@@ -173,7 +173,7 @@ public class awsTest {
 					instance_id = id_string.nextLine();
 
 				if(!instance_id.trim().isEmpty())
-					SSH(instance_id);
+					condorStatus(instance_id);
 				break;
 
 				case 10:
@@ -187,9 +187,7 @@ public class awsTest {
 				return;
 			default: System.out.println("concentration!");
 			}
-
 		}
-		
 	}
 
 	public static void listInstances() {
@@ -248,12 +246,10 @@ public class awsTest {
 				System.out.println("Error Code: " + ase.getErrorCode());
 				System.out.println("Request ID: " + ase.getRequestId());
 		}
-	
 	}
 
 	public static void startInstance(String instance_id)
 	{
-		
 		System.out.printf("Starting .... %s\n", instance_id);
 		final AmazonEC2 ec2 = AmazonEC2ClientBuilder.defaultClient();
 
@@ -272,8 +268,7 @@ public class awsTest {
 
 		System.out.printf("Successfully started instance %s", instance_id);
 	}
-	
-	
+
 	public static void availableRegions() {
 		
 		System.out.println("Available regions ....");
@@ -313,7 +308,6 @@ public class awsTest {
 		{
 			System.out.println("Exception: "+e.toString());
 		}
-
 	}
 	
 	public static void createInstance(String ami_id) {
@@ -332,7 +326,6 @@ public class awsTest {
 		System.out.printf(
 			"Successfully started EC2 instance %s based on AMI %s",
 			reservation_id, ami_id);
-	
 	}
 
 	public static void rebootInstance(String instance_id) {
@@ -354,8 +347,6 @@ public class awsTest {
 		{
 			System.out.println("Exception: "+e.toString());
 		}
-
-		
 	}
 	
 	public static void listImages() {
@@ -366,7 +357,8 @@ public class awsTest {
 		DescribeImagesRequest request = new DescribeImagesRequest();
 		ProfileCredentialsProvider credentialsProvider = new ProfileCredentialsProvider();
 		
-		request.getFilters().add(new Filter().withName("name").withValues("aws-htcondor-kkm-slave"));
+		//request.getFilters().add(new Filter().withName("name").withValues("aws-htcondor-kkm-slave"));
+		request.getFilters().add(new Filter("owner-id").withValues("888577047594"));
 		request.setRequestCredentialsProvider(credentialsProvider);
 		
 		DescribeImagesResult results = ec2.describeImages(request);
@@ -375,11 +367,10 @@ public class awsTest {
 			System.out.printf("[ImageID] %s, [Name] %s, [Owner] %s\n", 
 					images.getImageId(), images.getName(), images.getOwnerId());
 		}
-		
 	}
 
 	// condor_status command 9
-	public static void SSH(String instance_id) {
+	public static void condorStatus(String instance_id) {
 		String username = "ec2-user";
 		String keyPath = "kkm.pem";
 		String host = getPublicDnsName(instance_id);
