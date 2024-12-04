@@ -318,6 +318,7 @@ public class awsTest {
 			.withInstanceType(InstanceType.T2Micro)
 			.withMaxCount(1)
 			.withMinCount(1)
+			.withSecurityGroupIds("sg-0a4ee91ee77ee89b4")
 			.withKeyName("kkm");
 
 		RunInstancesResult run_response = ec2.runInstances(run_request);
