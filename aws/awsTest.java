@@ -41,6 +41,7 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import com.amazonaws.services.ec2.model.CreateImageRequest;
 import com.amazonaws.services.ec2.model.CreateImageResult;
+import java.util.Base64;
 
 public class awsTest {
 
@@ -170,15 +171,17 @@ public class awsTest {
 					condorStatus(instance_id);
 				break;
 
-				case 10:
-					System.out.print("Enter instance id: ");
-					String instanceId = id_string.nextLine();
-					System.out.print("Enter image name: ");
-					String imageName = id_string.nextLine();
-					if (!instanceId.trim().isEmpty() && !imageName.trim().isEmpty()) {
-						createSlaveImage(instanceId, imageName);
-					}
-					break;
+			case 10:
+				System.out.print("Enter instance id: ");
+				String instanceId = id_string.nextLine();
+
+				System.out.print("Enter image name: ");
+				String imageName = id_string.nextLine();
+
+				if (!instanceId.trim().isEmpty() && !imageName.trim().isEmpty()) {
+					createSlaveImage(instanceId, imageName);
+				}
+				break;
 
 			case 99: 
 				System.out.println("bye! 2019038054 Kim KyeongMin");
@@ -312,12 +315,16 @@ public class awsTest {
 	
 	public static void createInstance(String ami_id) {
 		final AmazonEC2 ec2 = AmazonEC2ClientBuilder.defaultClient();
-		
+
+        String userData = "#!/bin/bash\necho 'ec2-user' > /home/ec2-user/user.txt";
+        String encodedUserData = Base64.getEncoder().encodeToString(userData.getBytes());
+
 		RunInstancesRequest run_request = new RunInstancesRequest()
 			.withImageId(ami_id)
 			.withInstanceType(InstanceType.T2Micro)
 			.withMaxCount(1)
 			.withMinCount(1)
+            .withUserData(encodedUserData)
 			.withSecurityGroupIds("sg-0a4ee91ee77ee89b4")
 			.withKeyName("kkm");
 
