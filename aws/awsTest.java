@@ -316,15 +316,15 @@ public class awsTest {
 	public static void createInstance(String ami_id) {
 		final AmazonEC2 ec2 = AmazonEC2ClientBuilder.defaultClient();
 
-        String userData = "#!/bin/bash\necho 'ec2-user' > /home/ec2-user/user.txt";
-        String encodedUserData = Base64.getEncoder().encodeToString(userData.getBytes());
+        	String userData = "#!/bin/bash\necho 'ec2-user' > /home/ec2-user/user.txt";
+        	String encodedUserData = Base64.getEncoder().encodeToString(userData.getBytes());
 
 		RunInstancesRequest run_request = new RunInstancesRequest()
 			.withImageId(ami_id)
 			.withInstanceType(InstanceType.T2Micro)
 			.withMaxCount(1)
 			.withMinCount(1)
-            .withUserData(encodedUserData)
+            		.withUserData(encodedUserData)
 			.withSecurityGroupIds("sg-0a4ee91ee77ee89b4")
 			.withKeyName("kkm");
 
